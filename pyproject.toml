@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "suoyin"
+version = "0.1.0"
+description = "Compact Python symbol manifests for codebases"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [
+    { name = "Alex Dong", email = "alex@rumenaut.com" },
+]
+keywords = ["ast", "cli", "codebase", "manifest", "symbols"]
+classifiers = [
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Homepage = "https://github.com/alexdong/suoyin"
+Repository = "https://github.com/alexdong/suoyin"
+Issues = "https://github.com/alexdong/suoyin/issues"
+
+[project.scripts]
+suoyin = "suoyin.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/suoyin"]
