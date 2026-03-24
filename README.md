@@ -53,3 +53,35 @@ uv publish
 ```
 
 If you have not published with `uv` before, configure a PyPI token first.
+
+## GitHub Actions Publishing
+
+This repository also includes an automated publishing workflow in
+[`publish.yml`](.github/workflows/publish.yml).
+
+It publishes to PyPI when you push a tag like `v0.1.0`:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Before the first automated release, configure a PyPI trusted publisher.
+
+For a brand new PyPI project, use a pending publisher at:
+
+- <https://pypi.org/manage/account/publishing/>
+
+Use these values:
+
+- PyPI project name: `suoyin`
+- Owner: `alexdong`
+- Repository name: `suoyin`
+- Workflow name: `publish.yml`
+- Environment name: `pypi`
+
+After that, the GitHub Actions workflow can publish without storing a long-lived
+PyPI token in GitHub secrets.
+
+If you use tag-triggered releases, protect tags matching `v*` in GitHub so only
+trusted maintainers can create release tags.
