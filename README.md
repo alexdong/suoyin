@@ -181,22 +181,13 @@ git tag v0.1.1
 git push origin v0.1.1
 ```
 
-Before the first automated release, configure a PyPI trusted publisher.
+The workflow uses a GitHub Actions environment secret named
+`PYPI_API_TOKEN` on the `pypi` environment.
 
-For a brand new PyPI project, use a pending publisher at:
+Before the first automated release:
 
-- <https://pypi.org/manage/account/publishing/>
-
-Use these values:
-
-- PyPI project name: `suoyin`
-- Owner: `alexdong`
-- Repository name: `suoyin`
-- Workflow name: `publish.yml`
-- Environment name: `pypi`
-
-After that, the GitHub Actions workflow can publish without storing a long-lived
-PyPI token in GitHub secrets.
+1. Create or reuse a PyPI API token.
+2. Store it as the `PYPI_API_TOKEN` secret on the `pypi` GitHub environment.
 
 If you use tag-triggered releases, protect tags matching `v*` in GitHub so only
 trusted maintainers can create release tags.
