@@ -16,29 +16,12 @@ Repository: <https://github.com/alexdong/suoyin>
 
 ## Usage
 
-Inspect the current repository:
+The block below is generated from the current repository by
+`uv run python tools/update_readme.py`.
 
+<!-- README:USAGE:START -->
 ```console
-$ uvx suoyin .
-```
-
-Inspect another project:
-
-```console
-$ uvx suoyin path/to/project
-```
-
-Local development:
-
-```console
-$ uv run suoyin .
-$ uv run suoyin ../some-project
-$ uv run python -m suoyin --help
-```
-
-## Example
-
-```text
+$ uvx suoyin
 # Manifest
 
 ## src.suoyin  (src/suoyin/__init__.py)
@@ -108,7 +91,15 @@ $ uv run python -m suoyin --help
     - def parse_args() -> argparse.Namespace @L397
     - def build_manifest(root: Path) -> str @L416
     - def main() -> None @L430
+
+## tools.update_readme  (tools/update_readme.py)
+  functions:
+    - def parse_args() -> argparse.Namespace @L23
+    - def render_usage() -> str @L35
+    - def replace_usage_block(readme: str, usage_block: str) -> str @L49
+    - def main() -> None @L57
 ```
+<!-- README:USAGE:END -->
 
 ## AGENTS.md
 
@@ -167,16 +158,24 @@ uv publish
 
 If you have not published with `uv` before, configure a PyPI token first.
 
+## Versioning
+
+`suoyin` uses VCS-derived versions.
+
+- The `0.1.0` baseline tag anchors version history without triggering a publish.
+- Later commits automatically become `0.1.1.devN`.
+- The dev suffix increments with commit distance from the latest release tag.
+
 ## GitHub Actions Publishing
 
 This repository also includes an automated publishing workflow in
 [`publish.yml`](.github/workflows/publish.yml).
 
-It publishes to PyPI when you push a tag like `v0.1.0`:
+It publishes to PyPI when you push a tag like `v0.1.1`:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.1.1
+git push origin v0.1.1
 ```
 
 Before the first automated release, configure a PyPI trusted publisher.
