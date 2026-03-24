@@ -4,6 +4,8 @@
 
 It is designed for fast codebase inspection and for feeding a high-signal summary into LLM workflows.
 
+`suoyin` is the Chinese pinyin for `index`. 
+
 Repository: <https://github.com/alexdong/suoyin>
 
 ## Features
@@ -22,7 +24,6 @@ The block below is generated from the current repository by
 <!-- README:USAGE:START -->
 ```console
 $ uvx suoyin
-# Manifest
 
 ## src/suoyin/__init__.py
   functions:
