@@ -356,7 +356,7 @@ def render(modules: list[ModuleSymbol]) -> str:
 
 
 def render_module(module: ModuleSymbol) -> list[str]:
-    lines = [f"## {module.module}  ({module.path})"]
+    lines = [f"## {module.path}"]
 
     if module.classes:
         lines.append("  classes:")

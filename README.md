@@ -24,14 +24,14 @@ The block below is generated from the current repository by
 $ uvx suoyin
 # Manifest
 
-## src.suoyin  (src/suoyin/__init__.py)
+## src/suoyin/__init__.py
   functions:
     - def _git_version() -> str @L8
     - def _installed_version() -> str @L50
 
-## src.suoyin.__main__  (src/suoyin/__main__.py)
+## src/suoyin/__main__.py
 
-## src.suoyin.cli  (src/suoyin/cli.py)
+## src/suoyin/cli.py
   classes:
     - class FunctionSymbol @L44
       members:
@@ -95,7 +95,7 @@ $ uvx suoyin
     - def build_manifest(root: Path) -> str @L416
     - def main() -> None @L430
 
-## tools.update_readme  (tools/update_readme.py)
+## tools/update_readme.py
   functions:
     - def parse_args() -> argparse.Namespace @L23
     - def render_usage() -> str @L35
