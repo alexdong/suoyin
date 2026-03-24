@@ -17,7 +17,7 @@ Repository: <https://github.com/alexdong/suoyin>
 ## Usage
 
 The block below is generated from the current repository by
-`uv run python tools/update_readme.py`.
+`python tools/update_readme.py`.
 
 <!-- README:USAGE:START -->
 ```console
@@ -25,6 +25,9 @@ $ uvx suoyin
 # Manifest
 
 ## src.suoyin  (src/suoyin/__init__.py)
+  functions:
+    - def _git_version() -> str @L8
+    - def _installed_version() -> str @L50
 
 ## src.suoyin.__main__  (src/suoyin/__main__.py)
 

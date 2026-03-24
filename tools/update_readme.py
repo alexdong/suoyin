@@ -3,8 +3,8 @@
 Update the README usage block from the current repository manifest.
 
 Usage:
-    uv run python tools/update_readme.py
-    uv run python tools/update_readme.py --check
+    python tools/update_readme.py
+    python tools/update_readme.py --check
 """
 
 import argparse
@@ -62,7 +62,7 @@ def main() -> None:
 
     if args.check:
         assert current_readme == expected_readme, (
-            "README.md is out of date. Run `uv run python tools/update_readme.py`."
+            "README.md is out of date. Run `python tools/update_readme.py`."
         )
         return
 

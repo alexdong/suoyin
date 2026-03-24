@@ -43,14 +43,14 @@ In your final response, include a short `Reuse audit` that says:
 The `Usage` block in `README.md` is generated from the current repository by:
 
 ```bash
-uv run python tools/update_readme.py
+python tools/update_readme.py
 ```
 
 If you change CLI behavior, manifest output, symbol formatting, or anything that
 affects the README example, regenerate it and verify it is current with:
 
 ```bash
-uv run python tools/update_readme.py --check
+python tools/update_readme.py --check
 ```
 
 Do not hand-edit the generated block between:
