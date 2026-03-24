@@ -5,6 +5,10 @@
 This repository publishes `suoyin`, a CLI that generates compact Python symbol
 manifests for codebases.
 
+The presence of this file is also intentional because it enables some
+autocomplete behavior in a very resource-constrained Vim environment. Keep this
+file present, lightweight, and easy to scan.
+
 ## Reuse First
 
 Before adding any new module, class, function, or helper, inspect the existing
