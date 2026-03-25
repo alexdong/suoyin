@@ -12,12 +12,16 @@ Generate a compact Python symbol manifest.
 Usage:
     uv run suoyin
     uv run suoyin path/to/project
+    uv run suoyin *.py
+    uv run suoyin src/**/*.py
     uvx suoyin
 """
 
 import argparse
 import ast
 import fnmatch
+import glob
+import os
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -400,10 +404,12 @@ def parse_args() -> argparse.Namespace:
         description="Generate a compact Python symbol manifest for a Python project.",
     )
     parser.add_argument(
-        "path",
-        nargs="?",
-        default=".",
-        help="Root directory to scan. Defaults to the current working directory.",
+        "paths",
+        nargs="*",
+        help=(
+            "Files, globs, or directories to scan. Defaults to the current "
+            "working directory."
+        ),
     )
     parser.add_argument(
         "--version",
@@ -411,6 +417,23 @@ def parse_args() -> argparse.Namespace:
         version=f"%(prog)s {__version__}",
     )
     return parser.parse_args()
+
+
+def expand_path_spec(path_spec: str, cwd: Path) -> list[Path]:
+    candidate = Path(path_spec).expanduser()
+    absolute_candidate = candidate if candidate.is_absolute() else cwd / candidate
+
+    if glob.has_magic(str(candidate)):
+        matches = [
+            Path(path).resolve()
+            for path in glob.glob(str(absolute_candidate), recursive=True)
+        ]
+        assert matches, f"No paths matched: {path_spec}"
+        return sorted(matches)
+
+    path = absolute_candidate.resolve()
+    assert path.exists(), f"Path does not exist: {path}"
+    return [path]
 
 
 def build_manifest(root: Path) -> str:
@@ -427,12 +450,58 @@ def build_manifest(root: Path) -> str:
     return render(modules)
 
 
+def build_manifest_for_paths(path_specs: list[str], cwd: Path) -> str:
+    if not path_specs:
+        return build_manifest(cwd.resolve())
+
+    resolved: list[Path] = []
+    seen_targets: set[Path] = set()
+    for path_spec in path_specs:
+        for target in expand_path_spec(path_spec, cwd):
+            if target in seen_targets:
+                continue
+            seen_targets.add(target)
+            resolved.append(target)
+
+    if len(path_specs) == 1 and len(resolved) == 1 and resolved[0].is_dir():
+        return build_manifest(resolved[0])
+
+    files: list[Path] = []
+    seen_files: set[Path] = set()
+    for target in resolved:
+        candidates: Iterator[Path] | list[Path]
+        if target.is_dir():
+            candidates = find_python_files(target, load_ignore_patterns(target))
+        else:
+            candidates = [target]
+
+        for file in candidates:
+            if file.suffix != ".py" or file in seen_files:
+                continue
+            seen_files.add(file)
+            files.append(file)
+
+    root = cwd.resolve()
+    if files and not all(file.is_relative_to(root) for file in files):
+        root = Path(os.path.commonpath(files))
+        if root.is_file():
+            root = root.parent
+
+    modules: list[ModuleSymbol] = []
+    for file in sorted(files, key=lambda file: str(file.relative_to(root))):
+        if is_test_path(file.relative_to(root)):
+            continue
+        parsed = parse_file(root, file)
+        if parsed:
+            modules.append(parsed)
+
+    modules.sort(key=lambda module: module.path)
+    return render(modules)
+
+
 def main() -> None:
     args = parse_args()
-    root = Path(args.path).expanduser().resolve()
-    assert root.exists(), f"Path does not exist: {root}"
-    assert root.is_dir(), f"Path is not a directory: {root}"
-    print(build_manifest(root))
+    print(build_manifest_for_paths(args.paths, Path.cwd()))
 
 
 if __name__ == "__main__":
