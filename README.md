@@ -96,11 +96,11 @@ $ uvx suoyin
     - def render(modules: list[ModuleSymbol]) -> str @L354
     - def render_module(module: ModuleSymbol) -> list[str] @L362
     - def render_class(class_symbol: ClassSymbol) -> list[str] @L381
-    - def parse_args() -> argparse.Namespace @L401
+    - def create_parser() -> argparse.ArgumentParser @L401
     - def expand_path_spec(path_spec: str, cwd: Path) -> list[Path] @L422
-    - def build_manifest(root: Path) -> str @L439
-    - def build_manifest_for_paths(path_specs: list[str], cwd: Path) -> str @L453
-    - def main() -> None @L502
+    - def build_manifest(root: Path) -> str @L441
+    - def build_manifest_for_paths(path_specs: list[str], cwd: Path) -> str @L455
+    - def main() -> None @L504
 
 ## tools/update_readme.py
   functions:

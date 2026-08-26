@@ -1,8 +1,11 @@
 import unittest
+from contextlib import redirect_stderr
+from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
-from suoyin.cli import build_manifest_for_paths
+from suoyin.cli import build_manifest_for_paths, main
 
 
 class BuildManifestForPathsTest(unittest.TestCase):
@@ -55,6 +58,34 @@ class BuildManifestForPathsTest(unittest.TestCase):
 
             self.assertIn("## src/pkg/__init__.py", manifest)
             self.assertIn("## src/pkg/module.py", manifest)
+
+
+class MainTest(unittest.TestCase):
+    def test_invalid_path_specs_are_reported_without_traceback(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cases = [
+                (str(root / "missing.py"), "Path does not exist:"),
+                (str(root / "*.py"), "No paths matched:"),
+            ]
+
+            for path_spec, expected_error in cases:
+                with self.subTest(path_spec=path_spec):
+                    stderr = StringIO()
+                    with (
+                        patch("sys.argv", ["suoyin", path_spec]),
+                        redirect_stderr(stderr),
+                        self.assertRaises(SystemExit) as raised,
+                    ):
+                        main()
+
+                    message = stderr.getvalue()
+                    self.assertEqual(raised.exception.code, 2)
+                    self.assertIn("usage: suoyin [-h] [--version] [paths ...]", message)
+                    self.assertIn(
+                        f"suoyin: error: {expected_error} {path_spec}", message
+                    )
+                    self.assertNotIn("Traceback", message)
 
 
 if __name__ == "__main__":

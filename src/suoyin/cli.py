@@ -398,7 +398,7 @@ def render_class(class_symbol: ClassSymbol) -> list[str]:
     return lines
 
 
-def parse_args() -> argparse.Namespace:
+def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="suoyin",
         description="Generate a compact Python symbol manifest for a Python project.",
@@ -416,7 +416,7 @@ def parse_args() -> argparse.Namespace:
         action="version",
         version=f"%(prog)s {__version__}",
     )
-    return parser.parse_args()
+    return parser
 
 
 def expand_path_spec(path_spec: str, cwd: Path) -> list[Path]:
@@ -428,11 +428,13 @@ def expand_path_spec(path_spec: str, cwd: Path) -> list[Path]:
             Path(path).resolve()
             for path in glob.glob(str(absolute_candidate), recursive=True)
         ]
-        assert matches, f"No paths matched: {path_spec}"
+        if not matches:
+            raise FileNotFoundError(f"No paths matched: {path_spec}")
         return sorted(matches)
 
     path = absolute_candidate.resolve()
-    assert path.exists(), f"Path does not exist: {path}"
+    if not path.exists():
+        raise FileNotFoundError(f"Path does not exist: {path_spec}")
     return [path]
 
 
@@ -500,8 +502,13 @@ def build_manifest_for_paths(path_specs: list[str], cwd: Path) -> str:
 
 
 def main() -> None:
-    args = parse_args()
-    print(build_manifest_for_paths(args.paths, Path.cwd()))
+    parser = create_parser()
+    args = parser.parse_args()
+    try:
+        manifest = build_manifest_for_paths(args.paths, Path.cwd())
+    except FileNotFoundError as error:
+        parser.error(str(error))
+    print(manifest)
 
 
 if __name__ == "__main__":
