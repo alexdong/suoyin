@@ -1,7 +1,4 @@
-"""
-suoyin.cli
-
-Generate a compact Python symbol manifest.
+"""Generate a compact Python symbol manifest with docstring summaries.
 
 - Recursively scans a target directory
 - Respects .gitignore and .ignore
@@ -22,6 +19,7 @@ import ast
 import fnmatch
 import glob
 import os
+import re
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -48,6 +46,7 @@ DEFAULT_IGNORES = [
 class FunctionSymbol:
     signature: str
     line_no: int
+    summary: str = ""
 
 
 @dataclass(slots=True)
@@ -63,6 +62,7 @@ class ClassSymbol:
     line_no: int
     members: list[MemberSymbol] = field(default_factory=list)
     functions: list[FunctionSymbol] = field(default_factory=list)
+    summary: str = ""
 
 
 @dataclass(slots=True)
@@ -71,6 +71,16 @@ class ModuleSymbol:
     path: str
     classes: list[ClassSymbol]
     functions: list[FunctionSymbol]
+    summary: str = ""
+
+
+def docstring_summary(
+    node: ast.Module | ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef,
+) -> str:
+    """Return the first docstring paragraph with whitespace collapsed to spaces."""
+    docstring = ast.get_docstring(node) or ""
+    paragraph = re.split(r"\n\s*\n", docstring.strip(), maxsplit=1)[0]
+    return " ".join(paragraph.split())
 
 
 def load_ignore_patterns(root: Path) -> list[str]:
@@ -213,6 +223,7 @@ class ManifestVisitor(ast.NodeVisitor):
             name=".".join([*self._class_names, node.name]),
             line_no=node.lineno,
             members=class_members(node),
+            summary=docstring_summary(node),
         )
         self.classes.append(class_symbol)
         self._visit_class_body(node, class_symbol)
@@ -229,6 +240,7 @@ class ManifestVisitor(ast.NodeVisitor):
         function = FunctionSymbol(
             signature=format_function(node, is_async=is_async),
             line_no=node.lineno,
+            summary=docstring_summary(node),
         )
         if self._class_stack:
             self._class_stack[-1].functions.append(function)
@@ -348,6 +360,7 @@ def parse_file(root: Path, path: Path) -> ModuleSymbol | None:
         path=str(path.relative_to(root)),
         classes=visitor.classes,
         functions=visitor.functions,
+        summary=docstring_summary(tree),
     )
 
 
@@ -361,6 +374,8 @@ def render(modules: list[ModuleSymbol]) -> str:
 
 def render_module(module: ModuleSymbol) -> list[str]:
     lines = [f"## {module.path}"]
+    if module.summary:
+        lines.append(f"  {module.summary}")
 
     if module.classes:
         lines.append("  classes:")
@@ -371,6 +386,7 @@ def render_module(module: ModuleSymbol) -> list[str]:
         lines.append("  functions:")
         lines.extend(
             f"    - {function.signature} @L{function.line_no}"
+            + (f": {function.summary}" if function.summary else "")
             for function in module.functions
         )
 
@@ -380,6 +396,8 @@ def render_module(module: ModuleSymbol) -> list[str]:
 
 def render_class(class_symbol: ClassSymbol) -> list[str]:
     lines = [f"    - class {class_symbol.name} @L{class_symbol.line_no}"]
+    if class_symbol.summary:
+        lines[0] += f": {class_symbol.summary}"
 
     if class_symbol.members:
         lines.append("      members:")
@@ -392,6 +410,7 @@ def render_class(class_symbol: ClassSymbol) -> list[str]:
         lines.append("      functions:")
         lines.extend(
             f"        - {function.signature} @L{function.line_no}"
+            + (f": {function.summary}" if function.summary else "")
             for function in class_symbol.functions
         )
 

@@ -25,6 +25,9 @@ jobs:
       - name: Check README usage
         run: python tools/update_readme.py --check
 
+      - name: Run tests
+        run: PYTHONPATH=src python -m unittest discover -v
+
       - name: Install build tools
         run: python -m pip install --upgrade build twine
 

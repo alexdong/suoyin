@@ -14,6 +14,7 @@ Repository: <https://github.com/alexdong/suoyin>
 - Respects `.gitignore` and `.ignore`
 - Skips test files and `conftest.py`
 - Renders compact function signatures such as `def func(a: int) -> str`
+- Includes the first docstring paragraph for modules, classes, functions, and methods
 - Expands classes to show both members and methods
 
 ## Usage
@@ -37,72 +38,78 @@ $ uvx suoyin
 ## src/suoyin/__main__.py
 
 ## src/suoyin/cli.py
+  Generate a compact Python symbol manifest with docstring summaries.
   classes:
-    - class FunctionSymbol @L48
+    - class FunctionSymbol @L46
       members:
-        - signature: str @L49
-        - line_no: int @L50
-    - class MemberSymbol @L54
+        - signature: str @L47
+        - line_no: int @L48
+        - summary: str @L49
+    - class MemberSymbol @L53
       members:
-        - name: str @L55
-        - signature: str @L56
-        - line_no: int @L57
-    - class ClassSymbol @L61
+        - name: str @L54
+        - signature: str @L55
+        - line_no: int @L56
+    - class ClassSymbol @L60
       members:
-        - name: str @L62
-        - line_no: int @L63
-        - members: list[MemberSymbol] @L64
-        - functions: list[FunctionSymbol] @L65
+        - name: str @L61
+        - line_no: int @L62
+        - members: list[MemberSymbol] @L63
+        - functions: list[FunctionSymbol] @L64
+        - summary: str @L65
     - class ModuleSymbol @L69
       members:
         - module: str @L70
         - path: str @L71
         - classes: list[ClassSymbol] @L72
         - functions: list[FunctionSymbol] @L73
-    - class ManifestVisitor @L189
+        - summary: str @L74
+    - class ManifestVisitor @L199
       members:
-        - classes: list[ClassSymbol] @L191
-        - functions: list[FunctionSymbol] @L192
-        - _class_names: list[str] @L193
-        - _class_stack: list[ClassSymbol] @L194
+        - classes: list[ClassSymbol] @L201
+        - functions: list[FunctionSymbol] @L202
+        - _class_names: list[str] @L203
+        - _class_stack: list[ClassSymbol] @L204
       functions:
-        - def __init__(self) -> None @L190
-        - def visit(self, node: ast.AST) -> None @L196
-        - def visit_class_def(self, node: ast.ClassDef) -> None @L211
-        - def visit_function_def(self, node: ast.FunctionDef) -> None @L220
-        - def visit_async_function_def(self, node: ast.AsyncFunctionDef) -> None @L223
-        - def _handle_function(self, node: ast.FunctionDef | ast.AsyncFunctionDef, *, is_async: bool) -> None @L226
-        - def _visit_class_body(self, node: ast.ClassDef, class_symbol: ClassSymbol) -> None @L238
+        - def __init__(self) -> None @L200
+        - def visit(self, node: ast.AST) -> None @L206
+        - def visit_class_def(self, node: ast.ClassDef) -> None @L221
+        - def visit_function_def(self, node: ast.FunctionDef) -> None @L231
+        - def visit_async_function_def(self, node: ast.AsyncFunctionDef) -> None @L234
+        - def _handle_function(self, node: ast.FunctionDef | ast.AsyncFunctionDef, *, is_async: bool) -> None @L237
+        - def _visit_class_body(self, node: ast.ClassDef, class_symbol: ClassSymbol) -> None @L250
   functions:
-    - def load_ignore_patterns(root: Path) -> list[str] @L76
-    - def is_ignored(path: Path, patterns: list[str]) -> bool @L91
-    - def is_test_path(path: Path) -> bool @L100
-    - def format_node(node: ast.AST) -> str @L111
-    - def format_function(node: ast.FunctionDef | ast.AsyncFunctionDef, *, is_async: bool) -> str @L118
-    - def format_member(name: str, annotation: ast.expr | None) -> str @L127
-    - def attribute_name(target: ast.expr) -> str @L133
-    - def assigned_names(target: ast.expr) -> list[str] @L143
-    - def remember_member(members: dict[str, MemberSymbol], name: str, annotation: ast.expr | None, line_no: int) -> None @L156
-    - def merge_member(members: dict[str, MemberSymbol], member: MemberSymbol) -> None @L170
-    - def method_members(node: ast.FunctionDef | ast.AsyncFunctionDef) -> list[MemberSymbol] @L180
-    - def remember_method_member(members: dict[str, MemberSymbol], statement: ast.stmt | ast.expr) -> None @L249
-    - def remember_assignment_members(members: dict[str, MemberSymbol], statement: ast.Assign) -> None @L269
-    - def remember_attribute_member(members: dict[str, MemberSymbol], target: ast.expr, *, line_no: int, annotation: ast.expr | None=None) -> None @L276
-    - def remember_class_member(members: dict[str, MemberSymbol], statement: ast.stmt) -> None @L288
-    - def class_members(node: ast.ClassDef) -> list[MemberSymbol] @L304
-    - def find_python_files(root: Path, ignores: list[str]) -> Iterator[Path] @L314
-    - def module_name(root: Path, path: Path) -> str @L324
-    - def parse_file(root: Path, path: Path) -> ModuleSymbol | None @L334
-    - def render(modules: list[ModuleSymbol]) -> str @L354
-    - def render_module(module: ModuleSymbol) -> list[str] @L362
-    - def render_class(class_symbol: ClassSymbol) -> list[str] @L381
-    - def create_parser() -> argparse.ArgumentParser @L401
-    - def expand_path_spec(path_spec: str, cwd: Path) -> list[Path] @L422
-    - def build_manifest(root: Path) -> str @L441
-    - def build_manifest_for_paths(path_specs: list[str], cwd: Path) -> str @L455
-    - def main() -> None @L504
+    - def docstring_summary(node: ast.Module | ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef) -> str @L77: Return the first docstring paragraph with whitespace collapsed to spaces.
+    - def load_ignore_patterns(root: Path) -> list[str] @L86
+    - def is_ignored(path: Path, patterns: list[str]) -> bool @L101
+    - def is_test_path(path: Path) -> bool @L110
+    - def format_node(node: ast.AST) -> str @L121
+    - def format_function(node: ast.FunctionDef | ast.AsyncFunctionDef, *, is_async: bool) -> str @L128
+    - def format_member(name: str, annotation: ast.expr | None) -> str @L137
+    - def attribute_name(target: ast.expr) -> str @L143
+    - def assigned_names(target: ast.expr) -> list[str] @L153
+    - def remember_member(members: dict[str, MemberSymbol], name: str, annotation: ast.expr | None, line_no: int) -> None @L166
+    - def merge_member(members: dict[str, MemberSymbol], member: MemberSymbol) -> None @L180
+    - def method_members(node: ast.FunctionDef | ast.AsyncFunctionDef) -> list[MemberSymbol] @L190
+    - def remember_method_member(members: dict[str, MemberSymbol], statement: ast.stmt | ast.expr) -> None @L261
+    - def remember_assignment_members(members: dict[str, MemberSymbol], statement: ast.Assign) -> None @L281
+    - def remember_attribute_member(members: dict[str, MemberSymbol], target: ast.expr, *, line_no: int, annotation: ast.expr | None=None) -> None @L288
+    - def remember_class_member(members: dict[str, MemberSymbol], statement: ast.stmt) -> None @L300
+    - def class_members(node: ast.ClassDef) -> list[MemberSymbol] @L316
+    - def find_python_files(root: Path, ignores: list[str]) -> Iterator[Path] @L326
+    - def module_name(root: Path, path: Path) -> str @L336
+    - def parse_file(root: Path, path: Path) -> ModuleSymbol | None @L346
+    - def render(modules: list[ModuleSymbol]) -> str @L367
+    - def render_module(module: ModuleSymbol) -> list[str] @L375
+    - def render_class(class_symbol: ClassSymbol) -> list[str] @L397
+    - def create_parser() -> argparse.ArgumentParser @L420
+    - def expand_path_spec(path_spec: str, cwd: Path) -> list[Path] @L441
+    - def build_manifest(root: Path) -> str @L460
+    - def build_manifest_for_paths(path_specs: list[str], cwd: Path) -> str @L474
+    - def main() -> None @L523
 
 ## tools/update_readme.py
+  Update the README usage block from the current repository manifest.
   functions:
     - def parse_args() -> argparse.Namespace @L23
     - def render_usage() -> str @L35
